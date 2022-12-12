@@ -16,7 +16,9 @@ class Piece {
 	}
 
 	moveDown() {
-		
+		for (let i = 0; i < 4; i++) {
+			this.tileLocations[i][1] += 1
+		}
 	}
 }
 
