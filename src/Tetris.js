@@ -3,8 +3,8 @@ import Board from "./Board"
 
 class Tetris {
 
-	static NORMAL_FALL_SPEED = 500 // milliseconds
-	static FAST_FALL_SPEED = 100 // milliseconds
+	static NORMAL_FALL_SPEED = 700 // milliseconds
+	static FAST_FALL_SPEED = 250 // milliseconds
 	static GRID_WIDTH = 10
 	static GRID_HEIGHT = 15
 
@@ -19,7 +19,11 @@ class Tetris {
 		this.backlog = new Backlog()
 		this.fallingPiece = this.backlog.nextPiece()
 		this.fallInterval = setInterval(this.normalFallCallback, NORMAL_FALL_SPEED)
+		// TODO: initialize event listeners
+	}
 
+	terminate() {
+		// TODO: remove event listeners
 	}
 
 	normalFallCallback() {
@@ -38,6 +42,20 @@ class Tetris {
 		this.score++
 	}
 
+	onSPACEKeydown() {
+		let { isSolidified, scoreGained } = this.board.solidifyPiece(this.fallingPiece)
+		while (!isSolidified) {
+			this.fallingPiece.moveDown()
+			score++
+			const solidifiedRet = this.board.solidifyPiece(this.fallingPiece)
+			isSolidified = solidifiedRet.isSolidified
+			scoreGained = solidifiedRet.scoreGained
+		}
+		score += scoreGained
+		this.fallingPiece = this.backlog.nextPiece()
+		// TODO: emit event updating board AND falling piece
+	}
+
 	onDOWNKeydown() {
 		clearInterval(this.fallInterval)
 		this.fallInterval = setInterval(this.fastFallCallback, FAST_FALL_SPEED)
@@ -49,27 +67,42 @@ class Tetris {
 	}
 
 	onUPKeydown() {
-
+		
 	}
 
 	onLEFTKeydown() {
-
+		const { leftMostTiles } = this.fallingPiece.getHorizontalBounds()
+		for (let i = 0; i < leftMostTiles.length; i++) {
+			const curTile = leftMostTiles[i]
+			if (curTile[0] - 1 < 0 || this.board.grid[curTile[0] - 1][curTile[1]] !== '.') {
+				return
+			}
+		}
+		this.fallingPiece.moveLeft()
+		// TODO: emit event updating fallingPiece
 	}
 
 	onRIGHTKeydown() {
-
-	}
-
-	onSPACEKeydown() {
-
+		const { rightMostTiles } = this.fallingPiece.getHorizontalBounds()
+		for (let i = 0; i < rightMostTiles.length; i++) {
+			const curTile = rightMostTiles[i]
+			if (curTile[0] + 1 >= GRID_WIDTH || this.board.grid[curTile[0] + 1][curTile[1]] !== '.') {
+				return
+			}
+		}
+		this.fallingPiece.moveRight()
+		// TODO: emit event updating fallingPiece
 	}
 
 	togglePause() {
 		this.paused = !this.paused
-	}
-
-	terminate() {
-
+		if (paused) {
+			clearInterval(this.fallInterval)
+			// TODO: clear event listeners
+		} else {
+			this.fallInterval = setInterval(this.normalFallCallback, NORMAL_FALL_SPEED)
+			// TODO: reinstate event listeners
+		}
 	}
 
 
