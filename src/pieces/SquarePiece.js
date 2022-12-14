@@ -17,10 +17,6 @@ class SquarePiece extends Piece {
 	getSymbol() {
 		return 'Q'
 	}
-
-	rotate() {
-		// don't spin
-	}
 }
 
 export default SquarePiece

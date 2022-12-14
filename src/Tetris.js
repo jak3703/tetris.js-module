@@ -1,5 +1,7 @@
 import Backlog from "./Backlog"
 import Board from "./Board"
+import Piece from './Piece'
+import * as WALL_KICKS from './offset-tests/offset-tests.json'
 
 class Tetris {
 
@@ -67,6 +69,27 @@ class Tetris {
 	}
 
 	onUPKeydown() {
+		if (this.fallingPiece.getSymbol() === 'Q') { return }
+		const { offsetX, offsetY, normalizedLocs } = Piece.getNormalizedPositions(this.fallingPiece.tileLocations)
+		const rotatedLocs = Piece.getClockwiseRotation(normalizedLocs)
+		const rotatingTo = (this.fallingPiece.rotateState + 1) % 4
+		const wallKickRules = this.fallingPiece.getSymbol() === 'I' ? 'ITests' : 'OtherTests'
+		let testSucceeded = false
+		let newLocs = []
+		for (let i = 1; i <= 5 && !testSucceeded; i++) {
+			newLocs = []
+			for (let j = 0; j < 4; j++) {
+				const newX = rotatedLocs[j][0] + offsetX + WALL_KICKS[wallKickRules][rotatingTo][i][0]
+				const newY = rotatedLocs[j][1] + offsetY + WALL_KICKS[wallKickRules][rotatingTo][i][1]
+				newLocs.push([newX, newY])
+			}
+			testSucceeded = this.board.isPieceOverlapping(newLocs)
+		}
+		if (testSucceeded) {
+			this.fallingPiece.rotateState = rotatingTo
+			this.fallingPiece.tileLocations = newLocs
+			// TODO: emit event updating fallingPiece
+		}
 		
 	}
 

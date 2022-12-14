@@ -1,6 +1,38 @@
 class Piece {
+	
+	/**
+	 * Returns the locations of a piece's tiles when the piece is rotated
+	 * 90 degrees clockwise
+	 * @param {Number[][]} tLocs normalized locations of a piece's tiles
+	 * @returns the piece rotated 90 degrees clockwise
+	 */
+	static getClockwiseRotation(tLocs) {
+		const rotatedLocs = []
+		for (let i = 0; i < tLocs.length; i++) {
+			const newX = tLocs[i][1]
+			const newY = -tLocs[i][0]
+			rotatedLocs.push([newX, newY])
+		}
+		return rotatedLocs
+	}
+
+	static getNormalizedPositions(tLocs) {
+		const offsetX = tLocs[0][0]
+		const offsetY = tLocs[0][1]
+		const normalizedLocs = []
+		for (let i = 0; i < tLocs.length; i++) {
+			normalizedLocs.push([tLocs[i][0] - offsetX, tLocs[i][1] - offsetY])
+		}
+		return {
+			offsetX,
+			offsetY,
+			normalizedLocs
+		}
+	}
+	
 	constructor(tileLocations) {
 		this.tileLocations = tileLocations
+		this.rotateState = 0
 	}
 
 	moveLeft() {

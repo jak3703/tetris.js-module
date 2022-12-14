@@ -1,4 +1,5 @@
 class Board {
+
 	constructor(width, height) {
 		this.grid = []
 		for (let i = 0; i < height + 4; i++) {
@@ -94,6 +95,20 @@ class Board {
 	isInLosingState() {
 		for (let i = 0; i < this.grid[0].length; i++) {
 			if (this.grid[i][3] !== '.') {
+				return true
+			}
+		}
+		return false
+	}
+
+	isPieceOverlapping(pieceLocs) {
+		for (let i = 0; i < 4; i++) {
+			if (pieceLocs[i][0] < 0 || 
+				pieceLocs[i][0] > this.grid[0].length - 1 ||
+				pieceLocs[i][1] < 0 ||
+				pieceLocs[i][1] > this.grid.length - 1 ||
+				this.grid[pieceLocs[i][0]][pieceLocs[i][1]] !== '.')
+			{
 				return true
 			}
 		}
