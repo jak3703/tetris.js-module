@@ -18,7 +18,9 @@ class Board {
 	 */
 	solidifyPiece(piece) {
 		const tLocs = piece.tileLocations
-		tLocs.sort((a, b) => a[0] - b[0])
+		// I can't remember why I sort here. It doesn't seem necessary when
+		// I look over the subsequent code, but who knows
+		// tLocs.sort((a, b) => a[0] - b[0])
 		let needToStop = false
 		for (let i = 0; i < 4; i++) {
 			const curX = tLocs[i][0]

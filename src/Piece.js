@@ -3,10 +3,6 @@ class Piece {
 		this.tileLocations = tileLocations
 	}
 
-	rotate() {
-
-	}
-
 	moveLeft() {
 		for (let i = 0; i < 4; i++) {
 			this.tileLocations[i][0] -= 1
