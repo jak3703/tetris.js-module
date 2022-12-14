@@ -8,10 +8,10 @@ class LinePiece extends Piece {
 		const centerTile = [Math.floor(width / 2), 3]
 		tLocs = []
 		// the 0th index has the tile we want to rotate around
-		tLocs.push([centerTile[0], centerTile[1] - 1])
 		tLocs.push(centerTile)
-		tLocs.push([centerTile[0], centerTile[1] - 2])
-		tLocs.push([centerTile[0], centerTile[1] - 3])
+		tLocs.push([centerTile[0] - 1, centerTile[1]])
+		tLocs.push([centerTile[0] - 2, centerTile[1]])
+		tLocs.push([centerTile[0] + 1, centerTile[1]])
 		super(tLocs)
 	}
 
