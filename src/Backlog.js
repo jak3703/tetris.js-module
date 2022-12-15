@@ -7,9 +7,10 @@ import TPiece from "./pieces/TPiece"
 import ZPiece from "./pieces/ZPiece"
 
 class Backlog {
-	constructor() {
+	constructor(anchor) {
 		this.backlogPiece = null
 		this.nextPiece()
+		this.anchor = anchor
 	}
 
 	nextPiece() {
@@ -42,7 +43,12 @@ class Backlog {
 				console.error('RNG stopped working??')
 				break
 		}
-		// TODO: throw event indicating backlog change
+		const instance = this
+		this.anchor.dispatchEvent(new CustomEvent('backlog-updated', {
+			detail: {
+				nextPiece: instance.backlogPiece
+			}
+		}))
 		return oldBacklogPiece
 	}
 }

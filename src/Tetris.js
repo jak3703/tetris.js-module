@@ -21,22 +21,37 @@ class Tetris {
 		this.backlog = new Backlog()
 		this.fallingPiece = this.backlog.nextPiece()
 		this.fallInterval = setInterval(this.normalFallCallback, NORMAL_FALL_SPEED)
-		// TODO: initialize event listeners
+		this.anchor.addEventListener('keydown', e => this.keydownHandler(e) )
+		this.anchor.addEventListener('keydown', e => this.escDownHandler(e) )
+		this.anchor.addEventListener('keyup', e => this.keyupHandler(e) )
 	}
 
 	terminate() {
-		// TODO: remove event listeners
+		this.anchor.removeEventListener('keydown', e => this.keydownHandler(e) )
+		this.anchor.removeEventListener('keydown', e => this.escDownHandler(e) )
+		this.anchor.removeEventListener('keyup', e => this.keyupHandler(e) )
 	}
 
 	normalFallCallback() {
+		const instance = this
 		const { isSolidified, scoreGained } = this.board.solidifyPiece(this.fallingPiece)
 		if (isSolidified) {
 			this.fallingPiece = this.backlog.nextPiece()
 			this.score += scoreGained
+			this.anchor.dispatchEvent(new CustomEvent('board-updated', {
+				detail: {
+					grid: instance.board.grid,
+					score: instance.score
+				}
+			}))
 		} else {
 			this.fallingPiece.moveDown()
-			// TODO: emit event updating fallingPiece
 		}
+		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
+			detail: {
+				fallingPiece: instance.fallingPiece
+			}
+		}))
 	}
 
 	fastFallCallback() {
@@ -45,6 +60,7 @@ class Tetris {
 	}
 
 	onSPACEKeydown() {
+		const instance = this
 		let { isSolidified, scoreGained } = this.board.solidifyPiece(this.fallingPiece)
 		while (!isSolidified) {
 			this.fallingPiece.moveDown()
@@ -55,7 +71,17 @@ class Tetris {
 		}
 		score += scoreGained
 		this.fallingPiece = this.backlog.nextPiece()
-		// TODO: emit event updating board AND falling piece
+		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
+			detail: {
+				fallingPiece: instance.fallingPiece
+			}
+		}))
+		this.anchor.dispatchEvent(new CustomEvent('board-updated', {
+			detail: {
+				grid: instance.board.grid,
+				score: instance.score
+			}
+		}))
 	}
 
 	onDOWNKeydown() {
@@ -70,6 +96,7 @@ class Tetris {
 
 	onUPKeydown() {
 		if (this.fallingPiece.getSymbol() === 'Q') { return }
+		const instance = this
 		const { offsetX, offsetY, normalizedLocs } = Piece.getNormalizedPositions(this.fallingPiece.tileLocations)
 		const rotatedLocs = Piece.getClockwiseRotation(normalizedLocs)
 		const rotatingTo = (this.fallingPiece.rotateState + 1) % 4
@@ -88,12 +115,17 @@ class Tetris {
 		if (testSucceeded) {
 			this.fallingPiece.rotateState = rotatingTo
 			this.fallingPiece.tileLocations = newLocs
-			// TODO: emit event updating fallingPiece
+			this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
+				detail: {
+					fallingPiece: instance.fallingPiece
+				}
+			}))
 		}
 		
 	}
 
 	onLEFTKeydown() {
+		const instance = this
 		const { leftMostTiles } = this.fallingPiece.getHorizontalBounds()
 		for (let i = 0; i < leftMostTiles.length; i++) {
 			const curTile = leftMostTiles[i]
@@ -102,10 +134,15 @@ class Tetris {
 			}
 		}
 		this.fallingPiece.moveLeft()
-		// TODO: emit event updating fallingPiece
+		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
+			detail: {
+				fallingPiece: instance.fallingPiece
+			}
+		}))
 	}
 
 	onRIGHTKeydown() {
+		const instance = this
 		const { rightMostTiles } = this.fallingPiece.getHorizontalBounds()
 		for (let i = 0; i < rightMostTiles.length; i++) {
 			const curTile = rightMostTiles[i]
@@ -114,21 +151,65 @@ class Tetris {
 			}
 		}
 		this.fallingPiece.moveRight()
-		// TODO: emit event updating fallingPiece
+		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
+			detail: {
+				fallingPiece: instance.fallingPiece
+			}
+		}))
 	}
 
 	togglePause() {
 		this.paused = !this.paused
 		if (paused) {
 			clearInterval(this.fallInterval)
-			// TODO: clear event listeners
+			this.anchor.removeEventListener('keydown', e => this.keydownHandler(e) )
+			this.anchor.removeEventListener('keyup', e => this.keyupHandler(e) )
 		} else {
 			this.fallInterval = setInterval(this.normalFallCallback, NORMAL_FALL_SPEED)
-			// TODO: reinstate event listeners
+			this.anchor.addEventListener('keydown', e => this.keydownHandler(e) )
+			this.anchor.addEventListener('keyup', e => this.keyupHandler(e) )
 		}
 	}
 
+	keydownHandler(event) {
+		if (event.isComposing || event.keyCode === 229) {
+			return
+		}
+		
+		if (!this.paused && event.keyCode === 32) { // SPACE
+			this.onSPACEKeydown()
+		}
+		else if (!this.paused && event.keyCode === 37) { // LEFT
+			this.onLEFTKeydown()
+		}
+		else if (!this.paused && event.keyCode === 38) { // UP
+			this.onUPKeydown()
+		}
+		else if (!this.paused && event.keyCode === 39) { // RIGHT
+			this.onRIGHTKeydown()
+		}
+		else if (!this.paused && event.keyCode === 40) { // DOWN
+			this.onDOWNKeydown()
+		}
+	}
 
+	escDownHandler(event) {
+		if (event.isComposing || event.keyCode === 229) {
+			return
+		}
+		if (event.keyCode === 27) { //ESC
+			this.togglePause()
+		}
+	}
+
+	keyupHandler(event) {
+		if (event.isComposing || event.keyCode === 229) {
+			return
+		}
+		if (event.keyCode === 40) {
+			this.onDOWNKeyup()
+		}
+	}
 }
 
 export default Tetris
