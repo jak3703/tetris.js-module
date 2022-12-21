@@ -211,6 +211,8 @@ class Tetris {
 		}
 	}
 
+	// methods for exposure
+
 	getBoard() {
 		return this.board.grid.slice(4)
 	}
@@ -221,6 +223,10 @@ class Tetris {
 
 	getBacklog() {
 		return this.backlog.backlogPiece
+	}
+
+	normalizePiecePositions(piece) {
+		return Piece.getNormalizedPositions(piece.tileLocations).normalizedLocs
 	}
 }
 
