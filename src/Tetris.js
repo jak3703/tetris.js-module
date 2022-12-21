@@ -12,14 +12,14 @@ class Tetris {
 
 	constructor(anchorElem) {
 		this.anchor = anchorElem
-	}
-
-	init() {
 		this.score = 0
 		this.paused = false
 		this.board = new Board(GRID_WIDTH, GRID_HEIGHT)
 		this.backlog = new Backlog()
 		this.fallingPiece = this.backlog.nextPiece()
+	}
+
+	init() {
 		this.fallInterval = setInterval(this.normalFallCallback, NORMAL_FALL_SPEED)
 		this.anchor.addEventListener('keydown', e => this.keydownHandler(e) )
 		this.anchor.addEventListener('keydown', e => this.escDownHandler(e) )
