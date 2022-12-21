@@ -210,6 +210,18 @@ class Tetris {
 			this.onDOWNKeyup()
 		}
 	}
+
+	getBoard() {
+		return this.board.grid.slice(4)
+	}
+
+	getFallingPiece() {
+		return this.fallingPiece
+	}
+
+	getBacklog() {
+		return this.backlog.backlogPiece
+	}
 }
 
 export default Tetris
