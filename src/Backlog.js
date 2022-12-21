@@ -15,7 +15,7 @@ class Backlog {
 
 	nextPiece() {
 		const oldBacklogPiece = this.backlogPiece
-		const randNum = Math.floor(Math.random() * 8)
+		const randNum = Math.floor(Math.random() * 7)
 		switch (randNum) {
 			case 0:
 				this.backlogPiece =  new TPiece()
