@@ -40,7 +40,7 @@ class Tetris {
 			this.score += scoreGained
 			this.anchor.dispatchEvent(new CustomEvent('board-updated', {
 				detail: {
-					grid: instance.board.grid,
+					grid: instance.board.grid.slice(4), // the top 4 rows are buffer that doesn't get rendered
 					score: instance.score
 				}
 			}))
@@ -78,7 +78,7 @@ class Tetris {
 		}))
 		this.anchor.dispatchEvent(new CustomEvent('board-updated', {
 			detail: {
-				grid: instance.board.grid,
+				grid: instance.board.grid.slice(4),
 				score: instance.score
 			}
 		}))
