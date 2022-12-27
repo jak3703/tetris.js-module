@@ -9,8 +9,8 @@ import ZPiece from "./pieces/ZPiece"
 class Backlog {
 	constructor(anchor) {
 		this.backlogPiece = null
-		this.nextPiece()
 		this.anchor = anchor
+		this.nextPiece()
 	}
 
 	nextPiece() {
