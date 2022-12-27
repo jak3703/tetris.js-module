@@ -60,6 +60,7 @@ class Tetris {
 	}
 
 	onSPACEKeydown() {
+		clearInterval(this.fallInterval)
 		const instance = this
 		let { isSolidified, scoreGained } = this.board.solidifyPiece(this.fallingPiece)
 		while (!isSolidified) {
@@ -69,6 +70,7 @@ class Tetris {
 			isSolidified = solidifiedRet.isSolidified
 			scoreGained = solidifiedRet.scoreGained
 		}
+		score += 5 // bonus for hitting space
 		score += scoreGained
 		this.fallingPiece = this.backlog.nextPiece()
 		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
@@ -82,6 +84,7 @@ class Tetris {
 				score: instance.score
 			}
 		}))
+		this.fallInterval = setInterval(this.normalFallCallback, Tetris.NORMAL_FALL_SPEED)
 	}
 
 	onDOWNKeydown() {
@@ -97,7 +100,7 @@ class Tetris {
 	onUPKeydown() {
 		if (this.fallingPiece.getSymbol() === 'Q') { return }
 		const instance = this
-		const { offsetX, offsetY, normalizedLocs } = Piece.getNormalizedPositions(this.fallingPiece.tileLocations)
+		const { offsetRow, offsetCol, normalizedLocs } = Piece.getNormalizedPositions(this.fallingPiece.tileLocations)
 		const rotatedLocs = Piece.getClockwiseRotation(normalizedLocs)
 		const rotatingTo = (this.fallingPiece.rotateState + 1) % 4
 		const wallKickRules = this.fallingPiece.getSymbol() === 'I' ? 'ITests' : 'OtherTests'
@@ -106,9 +109,9 @@ class Tetris {
 		for (let i = 1; i <= 5 && !testSucceeded; i++) {
 			newLocs = []
 			for (let j = 0; j < 4; j++) {
-				const newX = rotatedLocs[j][0] + offsetX + WALL_KICKS[wallKickRules][rotatingTo][i][0]
-				const newY = rotatedLocs[j][1] + offsetY + WALL_KICKS[wallKickRules][rotatingTo][i][1]
-				newLocs.push([newX, newY])
+				const newRow = rotatedLocs[j][0] + offsetRow + WALL_KICKS[wallKickRules][rotatingTo][i][0]
+				const newCol = rotatedLocs[j][1] + offsetCol + WALL_KICKS[wallKickRules][rotatingTo][i][1]
+				newLocs.push([newRow, newCol])
 			}
 			testSucceeded = this.board.isPieceOverlapping(newLocs)
 		}
@@ -129,7 +132,7 @@ class Tetris {
 		const { leftMostTiles } = this.fallingPiece.getHorizontalBounds()
 		for (let i = 0; i < leftMostTiles.length; i++) {
 			const curTile = leftMostTiles[i]
-			if (curTile[0] - 1 < 0 || this.board.grid[curTile[0] - 1][curTile[1]] !== '.') {
+			if (curTile[1] - 1 < 0 || this.board.grid[curTile[0]][curTile[1] - 1] !== '.') {
 				return
 			}
 		}
@@ -146,7 +149,7 @@ class Tetris {
 		const { rightMostTiles } = this.fallingPiece.getHorizontalBounds()
 		for (let i = 0; i < rightMostTiles.length; i++) {
 			const curTile = rightMostTiles[i]
-			if (curTile[0] + 1 >= GRID_WIDTH || this.board.grid[curTile[0] + 1][curTile[1]] !== '.') {
+			if (curTile[1] + 1 >= GRID_WIDTH || this.board.grid[curTile[0]][curTile[1] + 1] !== '.') {
 				return
 			}
 		}

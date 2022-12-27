@@ -19,23 +19,23 @@ class Piece {
 	static getClockwiseRotation(tLocs) {
 		const rotatedLocs = []
 		for (let i = 0; i < tLocs.length; i++) {
-			const newX = tLocs[i][1]
-			const newY = -tLocs[i][0]
-			rotatedLocs.push([newX, newY])
+			const newCol = tLocs[i][0]
+			const newRow = -tLocs[i][1]
+			rotatedLocs.push([newRow, newCol])
 		}
 		return rotatedLocs
 	}
 
 	static getNormalizedPositions(tLocs) {
-		const offsetX = tLocs[0][0]
-		const offsetY = tLocs[0][1]
+		const offsetRow = tLocs[0][0]
+		const offsetCol = tLocs[0][1]
 		const normalizedLocs = []
 		for (let i = 0; i < tLocs.length; i++) {
-			normalizedLocs.push([tLocs[i][0] - offsetX, tLocs[i][1] - offsetY])
+			normalizedLocs.push([tLocs[i][0] - offsetRow, tLocs[i][1] - offsetCol])
 		}
 		return {
-			offsetX,
-			offsetY,
+			offsetRow,
+			offsetCol,
 			normalizedLocs
 		}
 	}
@@ -47,24 +47,24 @@ class Piece {
 
 	moveLeft() {
 		for (let i = 0; i < 4; i++) {
-			this.tileLocations[i][0] -= 1
+			this.tileLocations[i][1] -= 1
 		}
 	}
 
 	moveRight() {
 		for (let i = 0; i < 4; i++) {
-			this.tileLocations[i][0] += 1
+			this.tileLocations[i][1] += 1
 		}
 	}
 
 	moveDown() {
 		for (let i = 0; i < 4; i++) {
-			this.tileLocations[i][1] += 1
+			this.tileLocations[i][0] += 1
 		}
 	}
 
 	getHorizontalBounds() {
-		const ys = [...new Set(this.tileLocations.map((elem) => elem[1]))]
+		const ys = [...new Set(this.tileLocations.map((elem) => elem[0]))]
 		const leftmostTiles = []
 		const rightmostTiles = []
 		for (let i = 0; i < ys.length; i++) {
@@ -73,13 +73,13 @@ class Piece {
 			let rightmostXForThisY = 0
 			let idxOfRightMost = 0
 			for (let j = 0; j < 4; j++) {
-				if (this.tileLocations[j][1] === ys[i]) {
-					if (this.tileLocations[j][0] < leftmostXForThisY) {
-						leftmostXForThisY = this.tileLocations[j][0]
+				if (this.tileLocations[j][0] === ys[i]) {
+					if (this.tileLocations[j][1] < leftmostXForThisY) {
+						leftmostXForThisY = this.tileLocations[j][1]
 						idxOfLeftMost = j
 					}
-					if (this.tileLocations[j][0] > rightmostXForThisY) {
-						rightmostXForThisY = this.tileLocations[j][0]
+					if (this.tileLocations[j][1] > rightmostXForThisY) {
+						rightmostXForThisY = this.tileLocations[j][1]
 						idxOfRightMost = j
 					}
 				}

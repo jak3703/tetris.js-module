@@ -19,26 +19,23 @@ class Board {
 	 */
 	solidifyPiece(piece) {
 		const tLocs = piece.tileLocations
-		// I can't remember why I sort here. It doesn't seem necessary when
-		// I look over the subsequent code, but who knows
-		// tLocs.sort((a, b) => a[0] - b[0])
 		let needToStop = false
 		for (let i = 0; i < 4; i++) {
-			const curX = tLocs[i][0]
-			if (tLocs[i][1] === this.highestTiles[curX] - 1) {
+			const curCol = tLocs[i][1]
+			if (tLocs[i][0] === this.highestTiles[curCol] - 1) {
 				needToStop = true
 			}
 		}
 		if (needToStop) {
 			for (let i = 0; i < 4; i++) {
-				const curX = tLocs[i][0]
-				if (tLocs[i][1] > this.highestTiles[curX]) {
-					this.highestTiles[curX] = tLocs[i][1]
+				const curCol = tLocs[i][1]
+				if (tLocs[i][0] < this.highestTiles[curCol]) {
+					this.highestTiles[curCol] = tLocs[i][0]
 				}
 				this.grid[tLocs[i][0]][tLocs[i][1]] = piece.getSymbol()
 			}
 			let scoreDelta = 0
-			let ys = tLocs.map((elem) => elem[1])
+			let ys = tLocs.map((elem) => elem[0])
 			ys = [...new Set(ys)]
 			const brokenLines = []
 			for (let i = 0; i < ys.length; i++) {
@@ -104,9 +101,9 @@ class Board {
 	isPieceOverlapping(pieceLocs) {
 		for (let i = 0; i < 4; i++) {
 			if (pieceLocs[i][0] < 0 || 
-				pieceLocs[i][0] > this.grid[0].length - 1 ||
+				pieceLocs[i][0] > this.grid.length - 1 ||
 				pieceLocs[i][1] < 0 ||
-				pieceLocs[i][1] > this.grid.length - 1 ||
+				pieceLocs[i][1] > this.grid[0].length - 1 ||
 				this.grid[pieceLocs[i][0]][pieceLocs[i][1]] !== '.')
 			{
 				return true
