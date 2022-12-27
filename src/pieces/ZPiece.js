@@ -6,7 +6,7 @@ class ZPiece extends Piece {
 	constructor() {
 		const width = Tetris.GRID_WIDTH
 		const centerTile = [Math.floor(width / 2), 3]
-		tLocs = []
+		const tLocs = []
 		// the 0th index has the tile we want to rotate around
 		tLocs.push(centerTile)
 		tLocs.push([centerTile[0], centerTile[1] - 1])
