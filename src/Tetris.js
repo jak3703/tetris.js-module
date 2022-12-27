@@ -15,7 +15,7 @@ class Tetris {
 		this.score = 0
 		this.paused = false
 		this.board = new Board(Tetris.GRID_WIDTH, Tetris.GRID_HEIGHT)
-		this.backlog = new Backlog()
+		this.backlog = new Backlog(anchorElem)
 		this.fallingPiece = this.backlog.nextPiece()
 	}
 
