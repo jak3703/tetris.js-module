@@ -1,4 +1,14 @@
 class Piece {
+	/*
+		List of pieces & symbols in one place:
+		SquarePiece: Q
+		LeftLPiece: L
+		RightLPiece: R
+		LinePiece: I
+		SPiece: S
+		ZPiece: Z
+		TPiece: T
+	*/
 	
 	/**
 	 * Returns the locations of a piece's tiles when the piece is rotated
