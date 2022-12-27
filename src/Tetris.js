@@ -14,13 +14,13 @@ class Tetris {
 		this.anchor = anchorElem
 		this.score = 0
 		this.paused = false
-		this.board = new Board(GRID_WIDTH, GRID_HEIGHT)
+		this.board = new Board(Tetris.GRID_WIDTH, Tetris.GRID_HEIGHT)
 		this.backlog = new Backlog()
 		this.fallingPiece = this.backlog.nextPiece()
 	}
 
 	init() {
-		this.fallInterval = setInterval(this.normalFallCallback, NORMAL_FALL_SPEED)
+		this.fallInterval = setInterval(this.normalFallCallback, Tetris.NORMAL_FALL_SPEED)
 		this.anchor.addEventListener('keydown', e => this.keydownHandler(e) )
 		this.anchor.addEventListener('keydown', e => this.escDownHandler(e) )
 		this.anchor.addEventListener('keyup', e => this.keyupHandler(e) )
@@ -86,12 +86,12 @@ class Tetris {
 
 	onDOWNKeydown() {
 		clearInterval(this.fallInterval)
-		this.fallInterval = setInterval(this.fastFallCallback, FAST_FALL_SPEED)
+		this.fallInterval = setInterval(this.fastFallCallback, Tetris.FAST_FALL_SPEED)
 	}
 
 	onDOWNKeyup() {
 		clearInterval(this.fallInterval)
-		this.fallInterval = setInterval(this.normalFallCallback, NORMAL_FALL_SPEED)
+		this.fallInterval = setInterval(this.normalFallCallback, Tetris.NORMAL_FALL_SPEED)
 	}
 
 	onUPKeydown() {
@@ -165,7 +165,7 @@ class Tetris {
 			this.anchor.removeEventListener('keydown', e => this.keydownHandler(e) )
 			this.anchor.removeEventListener('keyup', e => this.keyupHandler(e) )
 		} else {
-			this.fallInterval = setInterval(this.normalFallCallback, NORMAL_FALL_SPEED)
+			this.fallInterval = setInterval(this.normalFallCallback, Tetris.NORMAL_FALL_SPEED)
 			this.anchor.addEventListener('keydown', e => this.keydownHandler(e) )
 			this.anchor.addEventListener('keyup', e => this.keyupHandler(e) )
 		}
