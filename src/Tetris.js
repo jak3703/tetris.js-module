@@ -20,16 +20,16 @@ class Tetris {
 	}
 
 	init() {
-		this.fallInterval = setInterval(this.normalFallCallback, Tetris.NORMAL_FALL_SPEED)
-		this.anchor.addEventListener('keydown', e => this.keydownHandler(e) )
-		this.anchor.addEventListener('keydown', e => this.escDownHandler(e) )
-		this.anchor.addEventListener('keyup', e => this.keyupHandler(e) )
+		this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
+		this.anchor.addEventListener('keydown', e => this.keydownHandler(e).bind(this) )
+		this.anchor.addEventListener('keydown', e => this.escDownHandler(e).bind(this) )
+		this.anchor.addEventListener('keyup', e => this.keyupHandler(e).bind(this) )
 	}
 
 	terminate() {
-		this.anchor.removeEventListener('keydown', e => this.keydownHandler(e) )
-		this.anchor.removeEventListener('keydown', e => this.escDownHandler(e) )
-		this.anchor.removeEventListener('keyup', e => this.keyupHandler(e) )
+		this.anchor.removeEventListener('keydown', e => this.keydownHandler(e).bind(this) )
+		this.anchor.removeEventListener('keydown', e => this.escDownHandler(e).bind(this) )
+		this.anchor.removeEventListener('keyup', e => this.keyupHandler(e).bind(this) )
 	}
 
 	normalFallCallback() {
@@ -84,17 +84,17 @@ class Tetris {
 				score: instance.score
 			}
 		}))
-		this.fallInterval = setInterval(this.normalFallCallback, Tetris.NORMAL_FALL_SPEED)
+		this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
 	}
 
 	onDOWNKeydown() {
 		clearInterval(this.fallInterval)
-		this.fallInterval = setInterval(this.fastFallCallback, Tetris.FAST_FALL_SPEED)
+		this.fallInterval = setInterval(this.fastFallCallback.bind(this), Tetris.FAST_FALL_SPEED)
 	}
 
 	onDOWNKeyup() {
 		clearInterval(this.fallInterval)
-		this.fallInterval = setInterval(this.normalFallCallback, Tetris.NORMAL_FALL_SPEED)
+		this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
 	}
 
 	onUPKeydown() {
@@ -165,12 +165,12 @@ class Tetris {
 		this.paused = !this.paused
 		if (paused) {
 			clearInterval(this.fallInterval)
-			this.anchor.removeEventListener('keydown', e => this.keydownHandler(e) )
-			this.anchor.removeEventListener('keyup', e => this.keyupHandler(e) )
+			this.anchor.removeEventListener('keydown', e => this.keydownHandler(e).bind(this) )
+			this.anchor.removeEventListener('keyup', e => this.keyupHandler(e).bind(this) )
 		} else {
-			this.fallInterval = setInterval(this.normalFallCallback, Tetris.NORMAL_FALL_SPEED)
-			this.anchor.addEventListener('keydown', e => this.keydownHandler(e) )
-			this.anchor.addEventListener('keyup', e => this.keyupHandler(e) )
+			this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
+			this.anchor.addEventListener('keydown', e => this.keydownHandler(e).bind(this) )
+			this.anchor.addEventListener('keyup', e => this.keyupHandler(e).bind(this) )
 		}
 	}
 
