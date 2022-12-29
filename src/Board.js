@@ -77,7 +77,7 @@ class Board {
 
 	checkLine(lineIdx) {
 		for (let i = 0; i < this.grid[0].length; i++) {
-			if (this.grid[i][lineIdx] === '.') {
+			if (this.grid[lineIdx][i] === '.') {
 				return false
 			}
 		}
@@ -91,7 +91,7 @@ class Board {
 
 	isInLosingState() {
 		for (let i = 0; i < this.grid[0].length; i++) {
-			if (this.grid[i][3] !== '.') {
+			if (this.grid[3][i] !== '.') {
 				return true
 			}
 		}

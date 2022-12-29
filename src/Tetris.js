@@ -20,6 +20,7 @@ class Tetris {
 	}
 
 	init() {
+		this.score = 0
 		this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
 		this.anchor.addEventListener('keydown', e => this.keydownHandler(e).bind(this) )
 		this.anchor.addEventListener('keydown', e => this.escDownHandler(e).bind(this) )
@@ -27,6 +28,7 @@ class Tetris {
 	}
 
 	terminate() {
+		clearInterval(this.fallInterval)
 		this.anchor.removeEventListener('keydown', e => this.keydownHandler(e).bind(this) )
 		this.anchor.removeEventListener('keydown', e => this.escDownHandler(e).bind(this) )
 		this.anchor.removeEventListener('keyup', e => this.keyupHandler(e).bind(this) )
@@ -36,14 +38,19 @@ class Tetris {
 		const instance = this
 		const { isSolidified, scoreGained } = this.board.solidifyPiece(this.fallingPiece)
 		if (isSolidified) {
-			this.fallingPiece = this.backlog.nextPiece()
-			this.score += scoreGained
-			this.anchor.dispatchEvent(new CustomEvent('board-updated', {
-				detail: {
-					grid: instance.board.grid.slice(4), // the top 4 rows are buffer that doesn't get rendered
-					score: instance.score
-				}
-			}))
+			if (this.board.isInLosingState()) {
+				this.terminate()
+				this.anchor.dispatchEvent(new CustomEvent('tetris-game-over'))
+			} else {
+				this.fallingPiece = this.backlog.nextPiece()
+				this.score += scoreGained
+				this.anchor.dispatchEvent(new CustomEvent('board-updated', {
+					detail: {
+						grid: instance.board.grid.slice(4), // the top 4 rows are buffer that doesn't get rendered
+						score: instance.score
+					}
+				}))
+			}
 		} else {
 			this.fallingPiece.moveDown()
 		}
