@@ -6,7 +6,7 @@ import * as WALL_KICKS from './offset-tests/offset-tests.json'
 class Tetris {
 
 	static NORMAL_FALL_SPEED = 700 // milliseconds
-	static FAST_FALL_SPEED = 250 // milliseconds
+	static FAST_FALL_SPEED = 75 // milliseconds
 	static GRID_WIDTH = 10
 	static GRID_HEIGHT = 15
 
@@ -17,21 +17,22 @@ class Tetris {
 		this.board = new Board(Tetris.GRID_WIDTH, Tetris.GRID_HEIGHT)
 		this.backlog = new Backlog(anchorElem)
 		this.fallingPiece = this.backlog.nextPiece()
+		this.isFastFall = false
 	}
 
 	init() {
-		this.score = 0
 		this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
-		this.anchor.addEventListener('keydown', e => this.keydownHandler(e).bind(this) )
-		this.anchor.addEventListener('keydown', e => this.escDownHandler(e).bind(this) )
-		this.anchor.addEventListener('keyup', e => this.keyupHandler(e).bind(this) )
+		window.addEventListener('keydown', e => this.keydownHandler(e) )
+		window.addEventListener('keydown', e => this.escDownHandler(e) )
+		window.addEventListener('keyup', e => this.keyupHandler(e) )
 	}
 
 	terminate() {
 		clearInterval(this.fallInterval)
-		this.anchor.removeEventListener('keydown', e => this.keydownHandler(e).bind(this) )
-		this.anchor.removeEventListener('keydown', e => this.escDownHandler(e).bind(this) )
-		this.anchor.removeEventListener('keyup', e => this.keyupHandler(e).bind(this) )
+		window.removeEventListener('keydown', e => this.keydownHandler(e) )
+		window.removeEventListener('keydown', e => this.escDownHandler(e) )
+		window.removeEventListener('keyup', e => this.keyupHandler(e) )
+		this.anchor.dispatchEvent(new CustomEvent('tetris-game-over'))
 	}
 
 	normalFallCallback() {
@@ -40,7 +41,6 @@ class Tetris {
 		if (isSolidified) {
 			if (this.board.isInLosingState()) {
 				this.terminate()
-				this.anchor.dispatchEvent(new CustomEvent('tetris-game-over'))
 			} else {
 				this.fallingPiece = this.backlog.nextPiece()
 				this.score += scoreGained
@@ -72,13 +72,12 @@ class Tetris {
 		let { isSolidified, scoreGained } = this.board.solidifyPiece(this.fallingPiece)
 		while (!isSolidified) {
 			this.fallingPiece.moveDown()
-			score++
+			this.score++
 			const solidifiedRet = this.board.solidifyPiece(this.fallingPiece)
 			isSolidified = solidifiedRet.isSolidified
 			scoreGained = solidifiedRet.scoreGained
 		}
-		score += 5 // bonus for hitting space
-		score += scoreGained
+		this.score += scoreGained
 		this.fallingPiece = this.backlog.nextPiece()
 		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
 			detail: {
@@ -95,17 +94,20 @@ class Tetris {
 	}
 
 	onDOWNKeydown() {
+		this.isFastFall = true
 		clearInterval(this.fallInterval)
 		this.fallInterval = setInterval(this.fastFallCallback.bind(this), Tetris.FAST_FALL_SPEED)
 	}
 
 	onDOWNKeyup() {
+		this.isFastFall = false
 		clearInterval(this.fallInterval)
 		this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
 	}
 
 	onUPKeydown() {
 		if (this.fallingPiece.getSymbol() === 'Q') { return }
+		clearInterval(this.fallInterval)
 		const instance = this
 		const { offsetRow, offsetCol, normalizedLocs } = Piece.getNormalizedPositions(this.fallingPiece.tileLocations)
 		const rotatedLocs = Piece.getClockwiseRotation(normalizedLocs)
@@ -120,7 +122,7 @@ class Tetris {
 				const newCol = rotatedLocs[j][1] + offsetCol + WALL_KICKS[wallKickRules][rotatingTo][i][1]
 				newLocs.push([newRow, newCol])
 			}
-			testSucceeded = this.board.isPieceOverlapping(newLocs)
+			testSucceeded = !this.board.isPieceOverlapping(newLocs)
 		}
 		if (testSucceeded) {
 			this.fallingPiece.rotateState = rotatingTo
@@ -131,17 +133,14 @@ class Tetris {
 				}
 			}))
 		}
-		
+		this.fallInterval = this.isFastFall ? setInterval(this.fastFallCallback.bind(this), Tetris.FAST_FALL_SPEED)
+											: setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
 	}
 
 	onLEFTKeydown() {
 		const instance = this
-		const { leftMostTiles } = this.fallingPiece.getHorizontalBounds()
-		for (let i = 0; i < leftMostTiles.length; i++) {
-			const curTile = leftMostTiles[i]
-			if (curTile[1] - 1 < 0 || this.board.grid[curTile[0]][curTile[1] - 1] !== '.') {
-				return
-			}
+		if (this.board.isPieceOverlapping(this.fallingPiece.tileLocations.map(tLoc => [tLoc[0], tLoc[1] - 1]))) {
+			return
 		}
 		this.fallingPiece.moveLeft()
 		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
@@ -153,12 +152,8 @@ class Tetris {
 
 	onRIGHTKeydown() {
 		const instance = this
-		const { rightMostTiles } = this.fallingPiece.getHorizontalBounds()
-		for (let i = 0; i < rightMostTiles.length; i++) {
-			const curTile = rightMostTiles[i]
-			if (curTile[1] + 1 >= GRID_WIDTH || this.board.grid[curTile[0]][curTile[1] + 1] !== '.') {
-				return
-			}
+		if (this.board.isPieceOverlapping(this.fallingPiece.tileLocations.map(tLoc => [tLoc[0], tLoc[1] + 1]))) {
+			return
 		}
 		this.fallingPiece.moveRight()
 		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
@@ -172,12 +167,12 @@ class Tetris {
 		this.paused = !this.paused
 		if (paused) {
 			clearInterval(this.fallInterval)
-			this.anchor.removeEventListener('keydown', e => this.keydownHandler(e).bind(this) )
-			this.anchor.removeEventListener('keyup', e => this.keyupHandler(e).bind(this) )
+			window.removeEventListener('keydown', e => this.keydownHandler(e) )
+			window.removeEventListener('keyup', e => this.keyupHandler(e) )
 		} else {
 			this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
-			this.anchor.addEventListener('keydown', e => this.keydownHandler(e).bind(this) )
-			this.anchor.addEventListener('keyup', e => this.keyupHandler(e).bind(this) )
+			window.addEventListener('keydown', e => this.keydownHandler(e) )
+			window.addEventListener('keyup', e => this.keyupHandler(e) )
 		}
 	}
 
@@ -198,7 +193,7 @@ class Tetris {
 		else if (!this.paused && event.keyCode === 39) { // RIGHT
 			this.onRIGHTKeydown()
 		}
-		else if (!this.paused && event.keyCode === 40) { // DOWN
+		else if (!this.paused && event.keyCode === 40 && !this.isFastFall) { // DOWN
 			this.onDOWNKeydown()
 		}
 	}

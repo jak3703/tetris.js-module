@@ -63,35 +63,6 @@ class Piece {
 		}
 	}
 
-	getHorizontalBounds() {
-		const ys = [...new Set(this.tileLocations.map((elem) => elem[0]))]
-		const leftmostTiles = []
-		const rightmostTiles = []
-		for (let i = 0; i < ys.length; i++) {
-			let leftmostXForThisY = this.tileLocations[0].length
-			let idxOfLeftMost = 0
-			let rightmostXForThisY = 0
-			let idxOfRightMost = 0
-			for (let j = 0; j < 4; j++) {
-				if (this.tileLocations[j][0] === ys[i]) {
-					if (this.tileLocations[j][1] < leftmostXForThisY) {
-						leftmostXForThisY = this.tileLocations[j][1]
-						idxOfLeftMost = j
-					}
-					if (this.tileLocations[j][1] > rightmostXForThisY) {
-						rightmostXForThisY = this.tileLocations[j][1]
-						idxOfRightMost = j
-					}
-				}
-			}
-			leftmostTiles.push(this.tileLocations[idxOfLeftMost])
-			rightmostTiles.push(this.tileLocations[idxOfRightMost])
-		}
-		return {
-			leftmostTiles,
-			rightmostTiles
-		}
-	}
 }
 
 export default Piece

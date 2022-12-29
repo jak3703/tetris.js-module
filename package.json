@@ -1,6 +1,6 @@
 {
   "name": "tetris",
-  "version": "1.0.9",
+  "version": "1.0.19",
   "description": "reusable tetris game",
   "main": "index.js",
   "scripts": {

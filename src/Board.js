@@ -19,14 +19,8 @@ class Board {
 	 */
 	solidifyPiece(piece) {
 		const tLocs = piece.tileLocations
-		let needToStop = false
-		for (let i = 0; i < 4; i++) {
-			const curCol = tLocs[i][1]
-			if (tLocs[i][0] === this.highestTiles[curCol] - 1) {
-				needToStop = true
-			}
-		}
-		if (needToStop) {
+		const nextTLocs = tLocs.map(tLoc => [tLoc[0] + 1, tLoc[1]])
+		if (this.isPieceOverlapping(nextTLocs)) {
 			for (let i = 0; i < 4; i++) {
 				const curCol = tLocs[i][1]
 				if (tLocs[i][0] < this.highestTiles[curCol]) {
@@ -60,7 +54,7 @@ class Board {
 					scoreDelta = 0
 					break
 			}
-			brokenLines.sort((a, b) => b - a)
+			brokenLines.sort((a, b) => a - b)
 			for (let i = 0; i < brokenLines.length; i++) {
 				this.resolveBrokenLine(brokenLines[i])
 			}
