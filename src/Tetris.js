@@ -5,7 +5,7 @@ import * as WALL_KICKS from './offset-tests/offset-tests.json'
 
 class Tetris {
 
-	static NORMAL_FALL_SPEED = 700 // milliseconds
+	static NORMAL_FALL_SPEED = 650 // milliseconds
 	static FAST_FALL_SPEED = 75 // milliseconds
 	static GRID_WIDTH = 10
 	static GRID_HEIGHT = 15
@@ -14,6 +14,7 @@ class Tetris {
 		this.anchor = anchorElem
 		this.score = 0
 		this.paused = false
+		this.terminated = false
 		this.board = new Board(Tetris.GRID_WIDTH, Tetris.GRID_HEIGHT)
 		this.backlog = new Backlog(anchorElem)
 		this.fallingPiece = this.backlog.nextPiece()
@@ -22,20 +23,19 @@ class Tetris {
 
 	init() {
 		this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
-		window.addEventListener('keydown', e => this.keydownHandler(e) )
-		window.addEventListener('keydown', e => this.escDownHandler(e) )
-		window.addEventListener('keyup', e => this.keyupHandler(e) )
+		this.anchor.addEventListener('keydown', e => this.keydownHandler(e) )
+		this.anchor.addEventListener('keydown', e => this.escDownHandler(e) )
+		this.anchor.addEventListener('keyup', e => this.keyupHandler(e) )
 	}
 
 	terminate() {
 		clearInterval(this.fallInterval)
-		window.removeEventListener('keydown', e => this.keydownHandler(e) )
-		window.removeEventListener('keydown', e => this.escDownHandler(e) )
-		window.removeEventListener('keyup', e => this.keyupHandler(e) )
 		this.anchor.dispatchEvent(new CustomEvent('tetris-game-over'))
 	}
 
 	normalFallCallback() {
+		this.anchor.setAttribute('tabindex', '0')
+		this.anchor.focus()
 		const instance = this
 		const { isSolidified, scoreGained } = this.board.solidifyPiece(this.fallingPiece)
 		if (isSolidified) {
@@ -165,19 +165,15 @@ class Tetris {
 
 	togglePause() {
 		this.paused = !this.paused
-		if (paused) {
+		if (this.paused) {
 			clearInterval(this.fallInterval)
-			window.removeEventListener('keydown', e => this.keydownHandler(e) )
-			window.removeEventListener('keyup', e => this.keyupHandler(e) )
 		} else {
 			this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
-			window.addEventListener('keydown', e => this.keydownHandler(e) )
-			window.addEventListener('keyup', e => this.keyupHandler(e) )
 		}
 	}
 
 	keydownHandler(event) {
-		if (event.isComposing || event.keyCode === 229) {
+		if (event.isComposing || event.keyCode === 229 || this.paused || this.terminated) {
 			return
 		}
 		
@@ -199,7 +195,7 @@ class Tetris {
 	}
 
 	escDownHandler(event) {
-		if (event.isComposing || event.keyCode === 229) {
+		if (event.isComposing || event.keyCode === 229 || this.terminated) {
 			return
 		}
 		if (event.keyCode === 27) { //ESC
@@ -208,7 +204,7 @@ class Tetris {
 	}
 
 	keyupHandler(event) {
-		if (event.isComposing || event.keyCode === 229) {
+		if (event.isComposing || event.keyCode === 229 || this.paused || this.terminated) {
 			return
 		}
 		if (event.keyCode === 40) {
