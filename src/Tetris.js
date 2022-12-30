@@ -29,8 +29,8 @@ class Tetris {
 	}
 
 	terminate() {
+		this.terminated = true
 		clearInterval(this.fallInterval)
-		this.anchor.dispatchEvent(new CustomEvent('tetris-game-over'))
 	}
 
 	normalFallCallback() {
@@ -77,20 +77,24 @@ class Tetris {
 			isSolidified = solidifiedRet.isSolidified
 			scoreGained = solidifiedRet.scoreGained
 		}
-		this.score += scoreGained
-		this.fallingPiece = this.backlog.nextPiece()
-		this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
-			detail: {
-				fallingPiece: instance.fallingPiece
-			}
-		}))
-		this.anchor.dispatchEvent(new CustomEvent('board-updated', {
-			detail: {
-				grid: instance.board.grid.slice(4),
-				score: instance.score
-			}
-		}))
-		this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
+		if (this.board.isInLosingState()) {
+			this.terminate()
+		} else {
+			this.score += scoreGained
+			this.fallingPiece = this.backlog.nextPiece()
+			this.anchor.dispatchEvent(new CustomEvent('falling-piece-updated', {
+				detail: {
+					fallingPiece: instance.fallingPiece
+				}
+			}))
+			this.anchor.dispatchEvent(new CustomEvent('board-updated', {
+				detail: {
+					grid: instance.board.grid.slice(4),
+					score: instance.score
+				}
+			}))
+			this.fallInterval = setInterval(this.normalFallCallback.bind(this), Tetris.NORMAL_FALL_SPEED)
+		}
 	}
 
 	onDOWNKeydown() {
